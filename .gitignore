@@ -1,5 +1,4 @@
 
-/build.vs2013
+/build.*
 /zlib.module
-/build.linux64
-/build.android
+/build_bin

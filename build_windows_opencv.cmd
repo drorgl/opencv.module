@@ -1,1 +1,1 @@
-gyp opencv.gyp --depth=. -f msvs -G msvs_version=2013 --generator-output=./build.vs2013/
+%GYP_PATH% opencv.gyp --depth=. -f msvs -G msvs_version=2015 -Dtarget_arch=x64 --generator-output=./build.vs2015/

@@ -7,12 +7,12 @@
 		'viz' : '0',
 	},
 	'target_defaults': {
-		'include_dirs':[
+		'include_dirs+':[
 			'opencv_src/include',
 			'config/<(OS)',
 		],
 		'direct_dependent_settings': {
-			'include_dirs': [
+			'include_dirs+': [
 				'opencv_src/include',
 				'config/<(OS)',
 			]
@@ -21,6 +21,8 @@
 			'__OPENCV_BUILD',
 			'CVAPI_EXPORTS',
 		],
+		
+		
 	
 		'msvs_settings': {
 			# This magical incantation is necessary because VC++ will compile
@@ -28,8 +30,10 @@
 			'VCCLCompilerTool': {
 				'ForcedIncludeFiles' : ['stdint.h'],
 			  'ObjectFile': '$(IntDir)/%(RelativeDir)/',
-			  'AdditionalOptions': ['/GL-','/w'], #['/wd4244' ,'/wd4018','/wd4133' ,'/wd4090'] #GL- was added because the forced optimization coming from node-gyp is disturbing the weird coding style from ffmpeg.
+			  #'AdditionalOptions': ['/GL-','/w'], #['/wd4244' ,'/wd4018','/wd4133' ,'/wd4090'] #GL- was added because the forced optimization coming from node-gyp is disturbing the weird coding style from ffmpeg.
+			  'WarningLevel':0,
 			  'WholeProgramOptimization' : 'false',
+			  'ExceptionHandling' : '1' #/EHsc
 			},
 			
 		},
@@ -45,6 +49,9 @@
 					'DEBUG',
 				],
 				'msvs_settings': {				
+					'VCCLCompilerTool': {
+						#'RuntimeLibrary': 3, # MultiThreadedDebugDLL (/MDd)
+					},
 					'VCLinkerTool' : {
 						'GenerateDebugInformation' : 'true',
 						'conditions':[
@@ -63,6 +70,9 @@
 				  }],
 				],
 				'msvs_settings': {				
+					'VCCLCompilerTool': {
+						#'RuntimeLibrary': 2, # MultiThreadedDLL (/MD)
+					},
 					'VCLinkerTool' : {
 						'conditions':[
 							['target_arch=="x64"', {
@@ -107,12 +117,24 @@
 				],
 			}],
 			['OS == "win"',{
+				# TODO: precompiled headers should be split to each project and use the "precomp.hpp" file
+				# the attempt below failed because the compilers attempted to share the obj files and file sharing 
+				# exceptions were thrown
+				# 'msvs_precompiled_header': 'config/<(OS)/stdafx.h',
+				# 'msvs_precompiled_source': 'config/<(OS)/stdafx.cpp',
+			    # 'sources': ['config/<(OS)/stdafx.cpp'],
+				
 				'defines':[
 					#'inline=__inline',
 					#'__asm__=__asm',
 					'WIN32',
 				],
-				'include_dirs':[
+				'defines!':[
+					'_CRT_SECURE_NO_DEPRECATE',
+					'_CRT_NONSTDC_NO_DEPRECATE',
+					'_HAS_EXCEPTIONS=0',
+				],
+				'include_dirs+':[
 					
 				],
 
@@ -129,6 +151,7 @@
 			'cflags':[
 				#'-std=gnu99',
 			],
+			'cflags_cc!': [ '-fno-rtti', '-fno-exceptions' ],
 			
 			'conditions': [
 			  ['OS=="solaris"', {
@@ -146,7 +169,13 @@
 			'cflags':[
 				'-marm',
 				'-march=armv7-a',
+				'-mfpu=neon',
+				'-mfloat-abi=softfp',
+				'-funsafe-math-optimizations',
+				'-O1',
 			],
+			'cflags!':['-O3','-O2'], #optimization sometimes crashes gcc
+			'cflags_cc!':['-O3','-O2'],#optimization sometimes crashes gcc
 			'ldflags':[
 				'-llog'
 			],
@@ -158,9 +187,9 @@
 		{
 			'target_name':'calib3d',
 			'type':'<(library)',
-			'include_dirs' : [
-				'config/<(OS)',
+			'include_dirs+' : [
 				'opencv_src/modules/calib3d/include',
+				'config/<(OS)',
 			],
 			'direct_dependent_settings': {
 				'include_dirs' : [
@@ -169,7 +198,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'features2d',
 				'flann',
 				'imgproc',
@@ -195,6 +224,8 @@
 				'opencv_src/modules/calib3d/src/fundam.cpp',
 				'opencv_src/modules/calib3d/src/homography_decomp.cpp',
 				'opencv_src/modules/calib3d/src/levmarq.cpp',
+				'opencv_src/modules/calib3d/src/main.cpp',
+				'opencv_src/modules/calib3d/src/opencl',
 				'opencv_src/modules/calib3d/src/p3p.cpp',
 				'opencv_src/modules/calib3d/src/p3p.h',
 				'opencv_src/modules/calib3d/src/polynom_solver.cpp',
@@ -210,8 +241,7 @@
 				'opencv_src/modules/calib3d/src/stereosgbm.cpp',
 				'opencv_src/modules/calib3d/src/triangulate.cpp',
 				'opencv_src/modules/calib3d/src/upnp.cpp',
-				'opencv_src/modules/calib3d/src/upnp.h',		
-				
+				'opencv_src/modules/calib3d/src/upnp.h',
 				'opencv_src/modules/calib3d/src/opencl/stereobm.cl',
 			],
 		},
@@ -219,23 +249,27 @@
 		{
 			'target_name':'core',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/core/include',
+				'config/<(OS)',
 			],
 			'direct_dependent_settings': {
-				'include_dirs' : [
+				'include_dirs+' : [
 					'opencv_src/modules/core/include',
 				],
 			},
 			'dependencies':[
-				'hal',
+				#'hal',
 				'../zlib.module/zlib.gyp:zlib',
 			],
 			'sources':[
 				'opencv_src/modules/core/include/opencv2/core.hpp',
+				
 				'opencv_src/modules/core/src/algorithm.cpp',
 				'opencv_src/modules/core/src/alloc.cpp',
 				'opencv_src/modules/core/src/arithm.cpp',
+				'opencv_src/modules/core/src/arithm_core.hpp',
+				'opencv_src/modules/core/src/arithm_simd.hpp',
 				'opencv_src/modules/core/src/array.cpp',
 				'opencv_src/modules/core/src/bufferpool.impl.hpp',
 				'opencv_src/modules/core/src/command_line_parser.cpp',
@@ -254,28 +288,36 @@
 				'opencv_src/modules/core/src/glob.cpp',
 				'opencv_src/modules/core/src/gl_core_3_1.cpp',
 				'opencv_src/modules/core/src/gl_core_3_1.hpp',
+				'opencv_src/modules/core/src/hal_replacement.hpp',
 				'opencv_src/modules/core/src/kmeans.cpp',
 				'opencv_src/modules/core/src/lapack.cpp',
 				'opencv_src/modules/core/src/lda.cpp',
 				'opencv_src/modules/core/src/lpsolver.cpp',
 				'opencv_src/modules/core/src/mathfuncs.cpp',
+				'opencv_src/modules/core/src/mathfuncs_core.cpp',
 				'opencv_src/modules/core/src/matmul.cpp',
 				'opencv_src/modules/core/src/matop.cpp',
 				'opencv_src/modules/core/src/matrix.cpp',
+				'opencv_src/modules/core/src/matrix_decomp.cpp',
+				'opencv_src/modules/core/src/merge.cpp',
 				'opencv_src/modules/core/src/ocl.cpp',
 				'opencv_src/modules/core/src/opengl.cpp',
 				'opencv_src/modules/core/src/out.cpp',
 				'opencv_src/modules/core/src/parallel.cpp',
+				'opencv_src/modules/core/src/parallel_pthreads.cpp',
 				'opencv_src/modules/core/src/pca.cpp',
 				'opencv_src/modules/core/src/persistence.cpp',
 				'opencv_src/modules/core/src/precomp.hpp',
 				'opencv_src/modules/core/src/rand.cpp',
+				'opencv_src/modules/core/src/split.cpp',
 				'opencv_src/modules/core/src/stat.cpp',
 				'opencv_src/modules/core/src/stl.cpp',
 				'opencv_src/modules/core/src/system.cpp',
 				'opencv_src/modules/core/src/tables.cpp',
 				'opencv_src/modules/core/src/types.cpp',
-				'opencv_src/modules/core/src/umatrix.cpp',	
+				'opencv_src/modules/core/src/umatrix.cpp',
+				'opencv_src/modules/core/src/va_intel.cpp',
+			
 
 				'opencv_src/modules/core/src/cuda/gpu_mat.cu',
 				
@@ -283,6 +325,7 @@
 				'opencv_src/modules/core/src/opencl/convert.cl',
 				'opencv_src/modules/core/src/opencl/copymakeborder.cl',
 				'opencv_src/modules/core/src/opencl/copyset.cl',
+				'opencv_src/modules/core/src/opencl/cvtclr_dx.cl',
 				'opencv_src/modules/core/src/opencl/fft.cl',
 				'opencv_src/modules/core/src/opencl/flip.cl',
 				'opencv_src/modules/core/src/opencl/gemm.cl',
@@ -300,6 +343,7 @@
 				'opencv_src/modules/core/src/opencl/split_merge.cl',
 				'opencv_src/modules/core/src/opencl/transpose.cl',
 				
+				
 				'opencv_src/modules/core/src/opencl/runtime/opencl_clamdblas.cpp',
 				'opencv_src/modules/core/src/opencl/runtime/opencl_clamdfft.cpp',
 				'opencv_src/modules/core/src/opencl/runtime/opencl_core.cpp',
@@ -308,6 +352,7 @@
 				'opencv_src/modules/core/src/opencl/runtime/autogenerated/opencl_clamdblas_impl.hpp',
 				'opencv_src/modules/core/src/opencl/runtime/autogenerated/opencl_clamdfft_impl.hpp',
 				'opencv_src/modules/core/src/opencl/runtime/autogenerated/opencl_core_impl.hpp',
+				'opencv_src/modules/core/src/opencl/runtime/autogenerated/opencl_gl_impl.hpp'
 			],
 		},
 		
@@ -315,7 +360,7 @@
 		{
 			'target_name':'cudaarithm',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudaarithm/include',
 			],
 			'direct_dependent_settings': {
@@ -325,7 +370,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'opencv_src/modules/cudaarithm/include/opencv2/cudaarithm.hpp',
@@ -374,7 +419,7 @@
 		{
 			'target_name':'cudabgsegm',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudabgsegm/include',
 			],
 			'direct_dependent_settings': {
@@ -384,7 +429,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'video',
 			],
 			'sources':[
@@ -402,7 +447,7 @@
 		{
 			'target_name':'cudacodec',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudacodec/include',
 			],
 			'direct_dependent_settings': {
@@ -412,7 +457,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'opencv_src/modules/cudacodec/include/opencv2/cudacodec.hpp',
@@ -442,7 +487,7 @@
 			{
 			'target_name':'cudafeatures2d',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudafeatures2d/include',
 			],
 			'direct_dependent_settings': {
@@ -452,7 +497,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'features2d',
 				'flann',
 				'cudafilters',
@@ -480,7 +525,7 @@
 			{
 			'target_name':'cudafilters',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudafilters/include',
 			],
 			'direct_dependent_settings': {
@@ -490,7 +535,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 				'cudaarithm',
 			],
@@ -539,7 +584,7 @@
 			{
 			'target_name':'cudaimgproc',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudaimgproc/include',
 			],
 			'direct_dependent_settings': {
@@ -549,7 +594,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 			],
 			'sources':[
@@ -597,7 +642,7 @@
 		{
 			'target_name':'cudaobjdetect',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudaobjdetect/include',
 			],
 			'direct_dependent_settings': {
@@ -607,7 +652,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'cudaarithm',
 				'cudawarping',
 				'imgproc',
@@ -632,7 +677,7 @@
 			{
 			'target_name':'cudastereo',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudastereo/include',
 			],
 			'direct_dependent_settings': {
@@ -642,7 +687,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'calib3d',
 				'features2d',
 				'flann',
@@ -670,7 +715,7 @@
 		{
 			'target_name':'cudawarping',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudawarping/include',
 			],
 			'direct_dependent_settings': {
@@ -680,7 +725,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 			],
 			'sources':[
@@ -702,7 +747,7 @@
 		{
 			'target_name':'cudev',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/cudev/include',
 			],
 			'direct_dependent_settings': {
@@ -712,7 +757,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'opencv_src/modules/cudev/include/opencv2/cudev.hpp',
@@ -723,7 +768,7 @@
 		{
 			'target_name':'features2d',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/features2d/include',
 			],
 			'direct_dependent_settings': {
@@ -734,7 +779,7 @@
 			'dependencies':[
 				'flann',
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 			],
 			'sources':[
@@ -786,7 +831,7 @@
 		{
 			'target_name':'flann',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/flann/include',
 			],
 			'direct_dependent_settings': {
@@ -796,7 +841,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'opencv_src/modules/flann/include/opencv2/flann.hpp',
@@ -809,32 +854,32 @@
 		{
 			'target_name':'hal',
 			'type':'static_library',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/hal/include',
 			],
 			'direct_dependent_settings': {
-				'include_dirs' : [
+				'include_dirs+' : [
 					'opencv_src/modules/hal/include',
 				],
 			},
 			'sources':[
-				'opencv_src/modules/hal/include/opencv2/hal.hpp',
-				'opencv_src/modules/hal/src/arithm.cpp',
-				'opencv_src/modules/hal/src/color.cpp',
-				'opencv_src/modules/hal/src/filter.cpp',
-				'opencv_src/modules/hal/src/mathfuncs.cpp',
-				'opencv_src/modules/hal/src/matrix.cpp',
-				'opencv_src/modules/hal/src/precomp.hpp',
-				'opencv_src/modules/hal/src/resize.cpp',
-				'opencv_src/modules/hal/src/stat.cpp',
-				'opencv_src/modules/hal/src/warp.cpp',
+				#'opencv_src/modules/hal/include/opencv2/hal.hpp',
+				#'opencv_src/modules/hal/src/arithm.cpp',
+				#'opencv_src/modules/hal/src/color.cpp',
+				#'opencv_src/modules/hal/src/filter.cpp',
+				##'opencv_src/modules/hal/src/mathfuncs.cpp',
+				##'opencv_src/modules/hal/src/matrix.cpp',
+				#'opencv_src/modules/hal/src/precomp.hpp',
+				#'opencv_src/modules/hal/src/resize.cpp',
+				##'opencv_src/modules/hal/src/stat.cpp',
+				#'opencv_src/modules/hal/src/warp.cpp',
 			],
 		},
 		
 		{
 			'target_name':'highgui',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/highgui/include',
 			],
 			'direct_dependent_settings': {
@@ -844,7 +889,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgcodecs',
 				'videoio',
 				'imgproc',
@@ -886,7 +931,7 @@
 		{
 			'target_name':'imgcodecs',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/imgcodecs/include',
 			],
 			'direct_dependent_settings': {
@@ -896,7 +941,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 				'png.gyp:libpng',
 				'../zlib.module/zlib.gyp:zlib',
@@ -943,7 +988,7 @@
 		{
 			'target_name':'imgproc',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/imgproc/include',
 				'config/<(OS)',
 			],
@@ -954,7 +999,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'config/<(OS)/opencl_kernels_imgproc.cpp',
@@ -1054,7 +1099,7 @@
 		{
 			'target_name':'ml',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/ml/include',
 			],
 			'direct_dependent_settings': {
@@ -1064,7 +1109,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 			],
 			'sources':[
 				'opencv_src/modules/ml/include/opencv2/ml.hpp',
@@ -1090,7 +1135,7 @@
 		{
 			'target_name':'objdetect',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/objdetect/include',
 			],
 			'direct_dependent_settings': {
@@ -1100,7 +1145,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 				'ml',
 				'highgui',
@@ -1127,7 +1172,7 @@
 		{
 			'target_name':'photo',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/photo/include',
 			],
 			'direct_dependent_settings': {
@@ -1137,7 +1182,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 			],
 			'sources':[
@@ -1177,7 +1222,7 @@
 		{
 			'target_name':'shape',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/shape/include',
 			],
 			'direct_dependent_settings': {
@@ -1187,7 +1232,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'video',
 				'imgproc',
 			],
@@ -1209,7 +1254,7 @@
 		{
 			'target_name':'stitching',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/stitching/include',
 			],
 			'direct_dependent_settings': {
@@ -1219,7 +1264,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'features2d',
 				'flann',
 				'imgproc',
@@ -1254,7 +1299,7 @@
 		{
 			'target_name':'superres',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/superres/include',
 			],
 			'direct_dependent_settings': {
@@ -1264,7 +1309,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 				'video',
 				'videoio',
@@ -1292,7 +1337,7 @@
 		{
 			'target_name':'ts',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/ts/include',
 			],
 			'direct_dependent_settings': {
@@ -1302,7 +1347,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgcodecs',
 				'videoio',
 				'highgui',
@@ -1326,7 +1371,7 @@
 		{
 			'target_name':'video',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/video/include',
 				'config/<(OS)',
 			],
@@ -1337,7 +1382,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 			],
 			'sources':[
@@ -1366,7 +1411,7 @@
 		{
 			'target_name':'videoio',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/videoio/include',
 			],
 			'direct_dependent_settings': {
@@ -1376,15 +1421,15 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgcodecs',
 				'imgproc',
 			],
 			'sources':[
 				'opencv_src/modules/videoio/include/opencv2/videoio.hpp',
-				'opencv_src/modules/videoio/src/agile_wrl.hpp',
+				#'opencv_src/modules/videoio/src/agile_wrl.hpp',
 				'opencv_src/modules/videoio/src/cap.cpp',
-				'opencv_src/modules/videoio/src/cap_android.cpp',
+				#'opencv_src/modules/videoio/src/cap_android.cpp',
 				'opencv_src/modules/videoio/src/cap_avfoundation.mm',
 				'opencv_src/modules/videoio/src/cap_cmu.cpp',
 				'opencv_src/modules/videoio/src/cap_dc1394.cpp',
@@ -1425,7 +1470,7 @@
 				#'opencv_src/modules/videoio/src/cap_ximea.cpp',
 				#'opencv_src/modules/videoio/src/cap_xine.cpp',
 				'opencv_src/modules/videoio/src/ffmpeg_codecs.hpp',
-				'opencv_src/modules/videoio/src/ppltasks_winrt.hpp',
+				#'opencv_src/modules/videoio/src/ppltasks_winrt.hpp',
 				'opencv_src/modules/videoio/src/precomp.hpp',
 				
 				#'opencv_src/modules/videoio/src/cap_winrt/CaptureFrameGrabber.cpp',
@@ -1440,7 +1485,7 @@
 		{
 			'target_name':'videostab',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/videostab/include',
 			],
 			'direct_dependent_settings': {
@@ -1450,7 +1495,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'imgproc',
 				'video',
 				'features2d',
@@ -1484,7 +1529,7 @@
 		{
 			'target_name':'world',
 			'type':'<(library)',
-			'include_dirs' : [
+			'include_dirs+' : [
 				'opencv_src/modules/world/include',
 			],
 			'direct_dependent_settings': {
@@ -1494,7 +1539,7 @@
 			},
 			'dependencies':[
 				'core',
-				'hal',
+				#'hal',
 				'video',
 				'features2d',
 				'imgproc',
@@ -1517,7 +1562,7 @@
 				{
 					'target_name':'cudalegacy',
 					'type':'<(library)',
-					'include_dirs' : [
+					'include_dirs+' : [
 						'opencv_src/modules/cudalegacy/include',
 					],
 					'direct_dependent_settings': {
@@ -1527,7 +1572,7 @@
 					},
 					'dependencies':[
 						'core',
-						'hal',
+						#'hal',
 					],
 					'sources':[
 						'opencv_src/modules/cudalegacy/include/opencv2/cudalegacy.hpp',
@@ -1566,7 +1611,7 @@
 				{
 					'target_name':'cudaoptflow',
 					'type':'<(library)',
-					'include_dirs' : [
+					'include_dirs+' : [
 						'opencv_src/modules/cudaoptflow/include',
 					],
 					'direct_dependent_settings': {
@@ -1576,7 +1621,7 @@
 					},
 					'dependencies':[
 						'core',
-						'hal',
+						#'hal',
 						'cudaarithm',
 						'cudawarping',
 						'imgproc',
@@ -1603,7 +1648,7 @@
 				{
 					'target_name':'viz',
 					'type':'<(library)',
-					'include_dirs' : [
+					'include_dirs+' : [
 						'opencv_src/modules/viz/include',
 					],
 					'direct_dependent_settings': {
@@ -1613,7 +1658,7 @@
 					},
 					'dependencies':[
 						'core',
-						'hal',
+						#'hal',
 					],
 					'sources':[
 						'opencv_src/modules/viz/include/opencv2/viz.hpp',

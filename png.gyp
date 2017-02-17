@@ -1,7 +1,9 @@
 {
 	'variables':{
-		#'library' : 'static_library',
-		'library' : 'shared_library',
+		#must be static library, libpng and opencv don't play nice when they are dlls as they are sharing file descriptors
+		#which does not work when compiled as shared libraries
+		'library' : 'static_library',
+		#'library' : 'shared_library',
 	},
 
 	'target_defaults': {

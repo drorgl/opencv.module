@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit!
 
-#include "precomp.hpp"
+//#include "precomp.hpp"
 #include "opencl_kernels_stitching.hpp"
 
 namespace cv
