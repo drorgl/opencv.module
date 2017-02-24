@@ -44,7 +44,7 @@
 #define HAVE_GENTOO_FFMPEG
 
 /* FFMpeg video library */
-//#define  HAVE_FFMPEG
+#define  HAVE_FFMPEG
 
 /* FFMpeg version flag */
 //#define  NEW_FFMPEG
