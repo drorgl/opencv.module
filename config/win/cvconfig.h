@@ -74,10 +74,10 @@
 #define  HAVE_INTTYPES_H 1
 
 /* JPEG-2000 codec */
-//#define  HAVE_JASPER
+#define  HAVE_JASPER
 
 /* IJG JPEG codec */
-//#define  HAVE_JPEG
+#define  HAVE_JPEG
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define  HAVE_LIBDL 1
@@ -155,7 +155,7 @@
 #define  PACKAGE_TARNAME "${PACKAGE_TARNAME}"
 
 /* Define to the version of this package. */
-#define  PACKAGE_VERSION "2.4.6"
+#define  PACKAGE_VERSION "3.2.0"
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
@@ -166,7 +166,7 @@
 #define  STACK_DIRECTION
 
 /* Version number of package */
-#define  VERSION "2.4.6"
+#define  VERSION "3.2.0"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

@@ -945,6 +945,8 @@
 				'imgproc',
 				'png.gyp:libpng',
 				'../zlib.module/zlib.gyp:zlib',
+				'libjasper.gyp:libjasper',
+				'libjpeg.gyp:libjpeg'
 			],
 			'sources':[
 				'opencv_src/modules/imgcodecs/include/opencv2/imgcodecs.hpp',
