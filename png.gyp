@@ -19,12 +19,13 @@
 			},
 		},
 		
+		
 		'conditions':[
 			['target_arch=="x64"', {
 				'msvs_configuration_platform': 'x64',
 			}],
 			
-			['OS in "linux android" and library == "shared_library"',{
+			['OS in "linux android"',{
 				'cflags':[
 					'-fPIC',
 				],

@@ -55,7 +55,7 @@
 #include "opencv2/core/private.cuda.hpp"
 #include "opencv2/core/ocl.hpp"
 
-#include "opencv2/hal.hpp"
+//#include "opencv2/hal.hpp"
 
 #include <assert.h>
 #include <ctype.h>
@@ -297,6 +297,6 @@ extern bool __termination; // skip some cleanups, because process is terminating
 
 }
 
-#include "opencv2/hal/intrin.hpp"
+//#include "opencv2/hal/intrin.hpp"
 
 #endif /*_CXCORE_INTERNAL_H_*/
