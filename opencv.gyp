@@ -5,7 +5,10 @@
 		'cuda' : '0',
 		'opencl' : '0',
 		'viz' : '0',
+		'have_gtk' : '<!(node build_utils/pkg-config.js --exists gtk+-3.0)'
+		
 	},
+	
 	'target_defaults': {
 		'include_dirs+':[
 			'opencv_src/include',
@@ -909,6 +912,20 @@
 				
 			],
 			'conditions':[
+				['have_gtk==1',{
+					'sources':[
+						'opencv_src/modules/highgui/src/window_gtk.cpp',
+					],
+					'defines':[
+						'HAVE_GTK=1'
+					],
+					'cflags':[
+						'<!(node build_utils/pkg-config.js --cflags gtk+-3.0 --silence-errors)'
+					],
+					'libraries':[
+						'<!(node build_utils/pkg-config.js --libs gtk+-3.0 --silence-errors)'
+					]
+				}],
 				['OS=="win"', {
 					'sources' :[
 						'opencv_src/modules/highgui/src/window_w32.cpp',
