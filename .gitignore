@@ -3,3 +3,4 @@
 /zlib.module
 /build_bin
 /jasper.*
+/npm-debug.log*
