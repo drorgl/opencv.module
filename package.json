@@ -1,0 +1,26 @@
+{
+  "name": "opencv.module",
+  "version": "0.0.1",
+  "description": "opencv module wrapper",
+  "main": "include_dirs.js",
+  "scripts": {
+    "test": "node-gyp configure build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drorgl/opencv.module.git"
+  },
+  "keywords": [
+    "opencv",
+    "c++"
+  ],
+  "gypfile": false,
+  "bugs": {
+    "url": "https://github.com/drorgl/opencv.module/issues"
+  },
+  "homepage": "https://github.com/drorgl/opencv.module#readme.md",
+  "devDependencies": {},
+  "dependencies": {
+    "node-gyp": "drorgl/node-gyp"
+  }
+}
