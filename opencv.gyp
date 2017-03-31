@@ -263,7 +263,8 @@
 			},
 			'dependencies':[
 				#'hal',
-				'../zlib.module/zlib.gyp:zlib',
+				"<!(node -e \"require('zlib.module')\"):zlib",
+				#'../zlib.module/zlib.gyp:zlib',
 			],
 			'sources':[
 				'opencv_src/modules/core/include/opencv2/core.hpp',
@@ -961,7 +962,8 @@
 				#'hal',
 				'imgproc',
 				'png.gyp:libpng',
-				'../zlib.module/zlib.gyp:zlib',
+				"<!(node -e \"require('zlib.module')\"):zlib",
+				#'../zlib.module/zlib.gyp:zlib',
 				'libjasper.gyp:libjasper',
 				'libjpeg.gyp:libjpeg'
 			],

@@ -21,6 +21,7 @@
   "homepage": "https://github.com/drorgl/opencv.module#readme.md",
   "devDependencies": {},
   "dependencies": {
-    "node-gyp": "drorgl/node-gyp"
+    "node-gyp": "drorgl/node-gyp",
+    "zlib.module":"drorgl/zlib.module#nnbu"
   }
 }
