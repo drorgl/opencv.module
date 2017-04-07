@@ -1,0 +1,9 @@
+{
+    "dependencies": {
+        "zlib": {
+            "sources": [
+                "https://github.com/drorgl/zlib.module.git@zlib.gyp:zlib"
+            ]
+        }
+    }
+}

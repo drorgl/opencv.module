@@ -6,3 +6,5 @@
 /npm-debug.log*
 /build
 /node_modules
+/.github-authentication-cache
+/native_configuration.json

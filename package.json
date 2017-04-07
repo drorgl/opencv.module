@@ -1,15 +1,16 @@
 {
   "name": "opencv.module",
-  "version": "0.0.1",
+  "version": "3.2.0",
   "description": "opencv module wrapper",
   "main": "include_dirs.js",
   "scripts": {
-    "preinstall" : "git submodule init && git submodule update || true",
-    "test": "node-gyp configure build"
+    "install": "echo call standalone to build and install this module",
+    "standalone": "nnbu-configure && node-gyp configure  && node-gyp build",
+    "pack": "nnbu-pack -s"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/drorgl/opencv.module.git"
+    "url": "https://github.com/drorgl/opencv.module.git"
   },
   "keywords": [
     "opencv",
@@ -23,6 +24,7 @@
   "devDependencies": {},
   "dependencies": {
     "node-gyp": "drorgl/node-gyp",
-    "zlib.module":"drorgl/zlib.module#nnbu"
+    "zlib.module": "drorgl/zlib.module#nnbu",
+    "node-native-build-utilities": "drorgl/node-native-build-utilities"
   }
 }
