@@ -255,15 +255,23 @@
 			'include_dirs+' : [
 				'opencv_src/modules/core/include',
 				'config/<(OS)',
+				'<!@(nnbu-dependency --headers zlib)',
 			],
 			'direct_dependent_settings': {
 				'include_dirs+' : [
 					'opencv_src/modules/core/include',
 				],
 			},
+			'link_settings':{
+					'libraries':[
+						'<!@(nnbu-dependency --lib-fix --libs zlib)',
+					],
+			},
 			'dependencies':[
 				#'hal',
-				'../zlib.module/zlib.gyp:zlib',
+				'<!@(nnbu-dependency --dependency zlib)',
+				#"<!(node -e \"require('zlib.module')\"):zlib",
+				#'../zlib.module/zlib.gyp:zlib',
 			],
 			'sources':[
 				'opencv_src/modules/core/include/opencv2/core.hpp',
@@ -950,6 +958,7 @@
 			'type':'<(library)',
 			'include_dirs+' : [
 				'opencv_src/modules/imgcodecs/include',
+				'<!@(nnbu-dependency --headers zlib)',
 			],
 			'direct_dependent_settings': {
 				'include_dirs' : [
@@ -961,10 +970,17 @@
 				#'hal',
 				'imgproc',
 				'png.gyp:libpng',
-				'../zlib.module/zlib.gyp:zlib',
+				'<!@(nnbu-dependency --dependency zlib)',
+				#"<!(node -e \"require('zlib.module')\"):zlib",
+				#'../zlib.module/zlib.gyp:zlib',
 				'libjasper.gyp:libjasper',
 				'libjpeg.gyp:libjpeg'
 			],
+			'link_settings':{
+					'libraries':[
+						'<!@(nnbu-dependency --lib-fix --libs zlib)',
+					],
+			},
 			'sources':[
 				'opencv_src/modules/imgcodecs/include/opencv2/imgcodecs.hpp',
 				
