@@ -3,6 +3,9 @@
         "zlib": {
             "sources": [
                 "https://github.com/drorgl/zlib.module.git@zlib.gyp:zlib"
+            ],
+			"archived_sources": [
+                "https://github.com/drorgl/zlib.module/releases/download/v1.2.8/zlib.module.v1.2.8.7z@zlib.gyp:zlib"
             ]
         }
     }
