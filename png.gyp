@@ -60,6 +60,7 @@
 			
 			'include_dirs':[
 				'opencv_src/3rdparty/libpng',
+				'<!@(nnbu-dependency --headers zlib)',
 			],
 			'direct_dependent_settings': {
 				'include_dirs': [
@@ -67,8 +68,14 @@
 				],
 			 },
 			'dependencies':[
-				'../zlib.module/zlib.gyp:zlib',
+				#'../zlib.module/zlib.gyp:zlib',
+				'<!@(nnbu-dependency --dependency zlib)',
 			],
+			'link_settings':{
+					'libraries':[
+						'<!@(nnbu-dependency --lib-fix --libs zlib)',
+					],
+			},
 			'sources':[
 				'opencv_src/3rdparty/libpng/png.c',
 				'opencv_src/3rdparty/libpng/png.h',
